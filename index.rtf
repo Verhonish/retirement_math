@@ -1,0 +1,127 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2759
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 <!DOCTYPE html>\
+<html lang="en">\
+<head>\
+    <meta charset="UTF-8">\
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">\
+    <title>Retirement Fund Calculator - India</title>\
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">\
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.0.1/chart.min.js"></script>\
+</head>\
+<body>\
+    <div class="container mt-5">\
+        <h1 class="text-center">Retirement Fund Calculator</h1>\
+        <p class="text-center">Plan your retirement with ease. Enter your details below:</p>\
+\
+        <form id="retirementForm">\
+            <div class="row mb-3">\
+                <div class="col-md-6">\
+                    <label for="currentAge" class="form-label">Current Age</label>\
+                    <input type="number" id="currentAge" class="form-control" placeholder="Enter your current age" required>\
+                </div>\
+                <div class="col-md-6">\
+                    <label for="retirementAge" class="form-label">Expected Retirement Age</label>\
+                    <input type="number" id="retirementAge" class="form-control" placeholder="Enter retirement age" required>\
+                </div>\
+            </div>\
+\
+            <div class="row mb-3">\
+                <div class="col-md-6">\
+                    <label for="monthlySavings" class="form-label">Current Monthly Savings (\uc0\u8377 )</label>\
+                    <input type="number" id="monthlySavings" class="form-control" placeholder="Enter your monthly savings" required>\
+                </div>\
+                <div class="col-md-6">\
+                    <label for="currentSavings" class="form-label">Current Savings (\uc0\u8377 )</label>\
+                    <input type="number" id="currentSavings" class="form-control" placeholder="Enter current savings amount" required>\
+                </div>\
+            </div>\
+\
+            <div class="row mb-3">\
+                <div class="col-md-6">\
+                    <label for="expectedExpenses" class="form-label">Expected Monthly Expenses After Retirement (\uc0\u8377 )</label>\
+                    <input type="number" id="expectedExpenses" class="form-control" placeholder="Enter expected expenses" required>\
+                </div>\
+                <div class="col-md-6">\
+                    <label for="inflationRate" class="form-label">Inflation Rate (%)</label>\
+                    <input type="number" id="inflationRate" class="form-control" placeholder="Enter inflation rate" step="0.01" required>\
+                </div>\
+            </div>\
+\
+            <div class="row mb-3">\
+                <div class="col-md-6">\
+                    <label for="rateOfReturn" class="form-label">Expected Rate of Return (%)</label>\
+                    <input type="number" id="rateOfReturn" class="form-control" placeholder="Enter expected rate of return" step="0.01" required>\
+                </div>\
+                <div class="col-md-6">\
+                    <label for="lifeExpectancy" class="form-label">Life Expectancy</label>\
+                    <input type="number" id="lifeExpectancy" class="form-control" placeholder="Enter life expectancy" required>\
+                </div>\
+            </div>\
+\
+            <div class="text-center">\
+                <button type="button" class="btn btn-primary" onclick="calculateRetirement()">Calculate</button>\
+            </div>\
+        </form>\
+\
+        <div class="mt-5" id="results" style="display:none;">\
+            <h3>Results</h3>\
+            <p id="summary"></p>\
+            <canvas id="resultsChart" width="400" height="200"></canvas>\
+        </div>\
+    </div>\
+\
+    <script>\
+        function calculateRetirement() \{\
+            // Input values\
+            const currentAge = parseInt(document.getElementById('currentAge').value);\
+            const retirementAge = parseInt(document.getElementById('retirementAge').value);\
+            const monthlySavings = parseFloat(document.getElementById('monthlySavings').value);\
+            const currentSavings = parseFloat(document.getElementById('currentSavings').value);\
+            const expectedExpenses = parseFloat(document.getElementById('expectedExpenses').value);\
+            const inflationRate = parseFloat(document.getElementById('inflationRate').value) / 100;\
+            const rateOfReturn = parseFloat(document.getElementById('rateOfReturn').value) / 100;\
+            const lifeExpectancy = parseInt(document.getElementById('lifeExpectancy').value);\
+\
+            const yearsToRetirement = retirementAge - currentAge;\
+            const yearsPostRetirement = lifeExpectancy - retirementAge;\
+\
+            // Inflation-adjusted expenses\
+            const inflatedExpenses = expectedExpenses * Math.pow(1 + inflationRate, yearsToRetirement);\
+\
+            // Corpus required at retirement\
+            const corpusRequired = inflatedExpenses * ((1 - Math.pow(1 + rateOfReturn, -yearsPostRetirement)) / rateOfReturn);\
+\
+            // Total savings at retirement\
+            const futureSavings = currentSavings * Math.pow(1 + rateOfReturn, yearsToRetirement) + \
+                (monthlySavings * ((Math.pow(1 + rateOfReturn, yearsToRetirement) - 1) / rateOfReturn) * (1 + rateOfReturn));\
+\
+            // Shortfall or surplus\
+            const shortfall = corpusRequired - futureSavings;\
+\
+            // Display results\
+            document.getElementById('results').style.display = 'block';\
+            document.getElementById('summary').innerHTML = `You will need a retirement corpus of \uc0\u8377 $\{corpusRequired.toFixed(2)\}. Your savings at retirement will be \u8377 $\{futureSavings.toFixed(2)\}. $\{shortfall > 0 ? `You need an additional \u8377 $\{shortfall.toFixed(2)\}.` : 'You have sufficient savings!'\}`;\
+\
+            // Chart\
+            const ctx = document.getElementById('resultsChart').getContext('2d');\
+            new Chart(ctx, \{\
+                type: 'pie',\
+                data: \{\
+                    labels: ['Corpus Required', 'Savings at Retirement'],\
+                    datasets: [\{\
+                        data: [corpusRequired, futureSavings],\
+                        backgroundColor: ['#FF6384', '#36A2EB']\
+                    \}]\
+                \}\
+            \});\
+        \}\
+    </script>\
+</body>\
+</html>\
+}
